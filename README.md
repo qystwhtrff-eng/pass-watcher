@@ -50,7 +50,7 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 |---|---|
 | `SMTP_USER` | avsändaradressen, t.ex. `dittkonto@gmail.com` |
 | `SMTP_PASSWORD` | app-lösenordet från steg 1 |
-| `MAIL_TO` | pappas mejl, gärna plus ditt: `pappa@exempel.se,du@exempel.se` |
+| `MAIL_TO` | mejl |
 | `SMTP_HOST` | *(valfri)* standard är `smtp.gmail.com` |
 | `SMTP_PORT` | *(valfri)* standard är `465` |
 
