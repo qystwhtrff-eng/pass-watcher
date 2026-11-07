@@ -1,0 +1,52 @@
+name: Passbevakare
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      test_email:
+        description: "Skicka ett testmejl i stället för att kolla"
+        type: boolean
+        default: false
+
+concurrency:
+  group: passbevakare
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Hämta state
+        uses: actions/cache/restore@v4
+        with:
+          path: state.json
+          key: passbevakare-state-${{ github.run_id }}
+          restore-keys: passbevakare-state-
+      - name: Kolla lediga tider
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: |
+          if [ "${{ inputs.test_email }}" = "true" ]; then
+            python check_slots.py --test-email
+          else
+            python check_slots.py
+          fi
+      - name: Spara state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state.json
+          key: passbevakare-state-${{ github.run_id }}
